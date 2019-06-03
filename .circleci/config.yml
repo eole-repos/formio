@@ -3,6 +3,7 @@ jobs:
   build:
     machine: true
     environment:
+      CIRCLE_USERNAME: 'eole-developer'
       PJ_NAME: 'formio'
       FORK_URL: 'https://github.com/formio'
       ORIG_URL: 'https://github.com/eole-repos'
