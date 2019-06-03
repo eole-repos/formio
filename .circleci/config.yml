@@ -1,0 +1,39 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    environment:
+      FORK_URL: 'https://github.com/formio/formio'
+      ORIG_URL: 'https://github.com/eole-repos/formio'
+      DIR: 'formio'
+    steps:
+      - add_ssh_keys: 
+          fingerprints:
+                  - '30:e0:ba:a3:04:7e:a1:f8:3b:3b:0a:e8:86:93:de:89'
+      - checkout
+      - run: git clone $FORK_URL
+        #- run: echo "git clone $FORK_URL"
+      - run: cd  $DIR
+        #- run: echo "cd  $DIR"
+      - run: git remote add upstream $ORIG_URL
+        #- run: echo "git remote add upstream $ORIG_URL"
+      - run: git checkout master
+      - run: git pull --no-edit upstream master
+      - run: git push origin master
+workflows: 
+  version: 2
+  cron_workflow: 
+    triggers:
+      - schedule:
+          # UTC+0
+          cron: "0 16 * * *"
+          filters:
+            branches:
+              only: 
+                - master
+    jobs: 
+      - build
+  normal_workflow: 
+     jobs: 
+      - build
+
