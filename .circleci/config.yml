@@ -1,23 +1,39 @@
 version: 2
 jobs:
   build:
-    docker:
-      - image: circleci/node:8.11.3
-      - image: mongo:3.4.16
+    machine: true
+    environment:
+      FORK_URL: 'https://github.com/formio/formio'
+      ORIG_URL: 'https://github.com/eole-repos/formio'
+      DIR: 'formio'
     steps:
+      - add_ssh_keys: 
+          fingerprints:
+                  - '60:62:ff:3e:26:ca:76:62:7f:d9:ec:2a:e9:07:96:d1'
       - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run:
-          name: Install npm
-          command: npm install
-      - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-          paths:
-            - node_modules
-      - run:
-          name: Test
-          command: npm test
-      - store_artifacts:
-          path: test-results.xml
-          prefix: tests
+      - run: git clone $FORK_URL
+        #- run: echo "git clone $FORK_URL"
+      - run: cd  $DIR
+        #- run: echo "cd  $DIR"
+      - run: git remote add upstream $ORIG_URL
+        #- run: echo "git remote add upstream $ORIG_URL"
+      - run: git checkout master
+      - run: git pull --no-edit upstream master
+      - run: git push origin master
+workflows: 
+  version: 2
+  cron_workflow: 
+    triggers:
+      - schedule:
+          # UTC+0
+          cron: "0 16 * * *"
+          filters:
+            branches:
+              only: 
+                - master
+    jobs: 
+      - build
+  normal_workflow: 
+     jobs: 
+      - build
+
