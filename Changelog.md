@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
+## 1.60.1
+### Fixed
+ - Default name of environment variable to change the email batch size.
+ - Not running unique keys validation on components with missing input property
+
 ## 1.60.0
 ### Fixed
  - Crash in the Login Action when no settings were provided.
