@@ -84,10 +84,13 @@ module.exports = (router) => {
 
       // Populate all subform components
       const getSubForms = (components) => {
-          const newComponents = components.map(component => {
+        if (!components) {
+          return Promise.resolve(components);
+        }
+        const newComponents = components.map(component => {
           if (component.type === 'form' && component.form) {
             const subForm = router.formio.mongoose.models.form.findById(component.form)
-                              .select('-_id -owner -_vid -__v').lean();
+              .select('-_id -owner -_vid -__v').lean();
 
             return subForm.then(resultForm => {
               resultForm.label = component.label;
@@ -97,18 +100,18 @@ module.exports = (router) => {
                 const subformComponents = populateWizardComponents(resultForm.components, getSubForms);
 
                 return Promise.all(subformComponents)
-                        .then(result => {
-                          resultForm.components = result;
-                          return resultForm;
-                        });
+                  .then(result => {
+                    resultForm.components = result;
+                    return resultForm;
+                  });
               }
               else {
                 return getSubForms(resultForm.components)
-                        .then(res => {
-                        resultForm.components = res;
+                  .then(res => {
+                    resultForm.components = res;
 
-                        return resultForm;
-                      });
+                    return resultForm;
+                  });
               }
             });
           }
@@ -175,11 +178,7 @@ module.exports = (router) => {
             }
 
             // Create the query stream.
-            const cursor = submissionModel
-              .find(hook.alter('submissionQuery', query, req))
-              .sort('modified')
-              .lean()
-              .cursor();
+            const cursor = submissionModel.find(hook.alter('submissionQuery', query, req)).lean().cursor();
             const promises = [];
 
             const stream = cursor.pipe(through(function(row) {
